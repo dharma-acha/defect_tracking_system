@@ -1,16 +1,23 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import "./LoginForm.css";
 import axios from "axios";
-import { toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
 import { useDispatch } from "react-redux";
 import config from "../config.json";
 
 function LoginForm() {
-  const [inputs, setInputs] = useState({ email: "", password: "" });
-  const [errors, setErrors] = useState({ email: "", password: "" });
+  const [inputs, setInputs] = useState({});
+  const [errors, setErrors] = useState({});
+  const [json_userdetails, setJsonUserDetails] = useState([]);
   const dispatch = useDispatch();
+
+  useEffect(() => {
+    axios.get(`${config.SERVER_URL}users`).then((res) => {
+      const persons = res.data.records;
+      
+      setJsonUserDetails(persons);
+    });
+  }, []);
 
   const handleChange = (event) => {
     const name = event.target.name;
@@ -21,41 +28,37 @@ function LoginForm() {
   const handleSubmit = (event) => {
     event.preventDefault();
     if (validate()) {
-      dispatch({ type: "SETSPINNER", data: { display: true } });
-      axios
-        .post(`${config.BE_SERVER_URL}users/login`, inputs)
-        .then((res) => {
-          if (res.data.success) {
-            let user = res.data.loggedindata;
-            setErrors({});
+      let count = 0;
+      let backenderrors = {};
+      console.log(json_userdetails)
+      json_userdetails.forEach((user) => {
+        if (user.email === inputs["email"]) {
+          count = count + 1;
+          if (user.password === inputs["password"]) {
             dispatch({
               type: "SETAUTHTOKEN",
               data: {
                 email: user.email,
                 username: user.username,
                 role: user.role,
-                _id: user._id,
+                id: user._id,
                 project: user.project,
               },
             });
-            dispatch({ type: "SETSPINNER", data: { display: false } });
           } else {
-            setErrors(res.data.errors);
-            dispatch({ type: "SETSPINNER", data: { display: false } });
+            backenderrors["password"] = "Incorrect password";
           }
-        })
-        .catch((err) => {
-          dispatch({ type: "SETSPINNER", data: { display: false } });
-          toast.warning(err.message, {
-            position: toast.POSITION.BOTTOM_LEFT,
-            autoClose: 3000,
-          });
-        });
+        }
+      });
+      if (count === 0) {
+        backenderrors["email"] = "No such email exists";
+      }
+      setErrors(backenderrors);
     }
   };
   const validateEmail = () => {
     let error = "";
-    if (!inputs["email"].length) {
+    if (!inputs["email"]) {
       error = "Please enter your email address.";
     } else {
       var pattern = new RegExp(
@@ -70,7 +73,7 @@ function LoginForm() {
 
   const validatePassword = () => {
     let error = "";
-    if (!inputs["password"].length) {
+    if (!inputs["password"]) {
       error = "Please enter your password";
     } else {
       if (inputs["password"].length < 6) {
@@ -84,10 +87,12 @@ function LoginForm() {
     let isValid = true;
     let error = {};
 
-    if (!inputs["email"].length) {
+    if (!inputs["email"]) {
       isValid = false;
       error["email"] = "Please enter your email address";
-    } else {
+    }
+
+    if (typeof inputs["email"] !== "undefined") {
       var pattern = new RegExp(
         /^(("[\w-\s]+")|([\w-]+(?:\.[\w-]+)*)|("[\w-\s]+")([\w-]+(?:\.[\w-]+)*))(@((?:[\w-]+\.)*\w[\w-]{0,66})\.([a-z]{2,6}(?:\.[a-z]{2})?)$)|(@\[?((25[0-5]\.|2[0-4][0-9]\.|1[0-9]{2}\.|[0-9]{1,2}\.))((25[0-5]|2[0-4][0-9]|1[0-9]{2}|[0-9]{1,2})\.){2}(25[0-5]|2[0-4][0-9]|1[0-9]{2}|[0-9]{1,2})\]?$)/i
       );
@@ -100,7 +105,9 @@ function LoginForm() {
     if (!inputs["password"]) {
       isValid = false;
       error["password"] = "Please enter your password";
-    } else {
+    }
+
+    if (typeof inputs["password"] !== "undefined") {
       if (inputs["password"].length < 6) {
         isValid = false;
         error["password"] = "Password should be atleast 6 characters";

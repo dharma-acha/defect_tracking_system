@@ -167,7 +167,7 @@ function Reports() {
               bugsummary: json.bugsummary,
               bugdescription: json.bugdescription,
               bugproject: json.bugproject,
-              assigneedetails: json.assigneedetails,
+              bugassignedto: json.bugassignedto,
               bugtype: json.bugtype,
               bugseverity: json.bugseverity,
               createdAt: new Date(json.createdAt).toLocaleString(
@@ -192,7 +192,7 @@ function Reports() {
                 bugsummary: json.bugsummary,
                 bugdescription: json.bugdescription,
                 bugproject: json.bugproject,
-                assigneedetails: json.assigneedetails,
+                bugassignedto: json.bugassignedto,
                 bugtype: json.bugtype,
                 bugseverity: json.bugseverity,
                 createdAt: new Date(json.createdAt).toLocaleString(
@@ -206,14 +206,14 @@ function Reports() {
         }
       }
       if (authToken.role === "EMPLOYEE") {
-        if (json.bugassignedto === authToken._id) {
+        if (json.bugassignedto === authToken.id.toString()) {
           if (filterdates.startdate === "" || filterdates.enddate === "") {
             return {
               id: json._id.slice(18),
               bugsummary: json.bugsummary,
               bugdescription: json.bugdescription,
               bugproject: json.bugproject,
-              assigneedetails: json.assigneedetails,
+              bugassignedto: json.bugassignedto,
               bugtype: json.bugtype,
               bugseverity: json.bugseverity,
               createdAt: new Date(json.createdAt).toLocaleString(
@@ -238,7 +238,7 @@ function Reports() {
                 bugsummary: json.bugsummary,
                 bugdescription: json.bugdescription,
                 bugproject: json.bugproject,
-                assigneedetails: json.assigneedetails,
+                bugassignedto: json.bugassignedto,
                 bugtype: json.bugtype,
                 bugseverity: json.bugseverity,
                 createdAt: new Date(json.createdAt).toLocaleString(
@@ -414,7 +414,7 @@ function Reports() {
                     : json.bugdescription.slice(0, 12) + "..."}
                 </div>
               ),
-              assigneedetails: json.assigneedetails,
+              bugassignedto: json.bugassignedto,
               createdAt: new Date(json.createdAt).toLocaleString(
                 config.DATE_REGION,
                 config["DATE_FORMAT_OBJECT"]
@@ -448,7 +448,7 @@ function Reports() {
                       : json.bugdescription.slice(0, 12) + "..."}
                   </div>
                 ),
-                assigneedetails: json.assigneedetails,
+                bugassignedto: json.bugassignedto,
                 createdAt: new Date(json.createdAt).toLocaleString(
                   config.DATE_REGION,
                   config["DATE_FORMAT_OBJECT"]
@@ -460,7 +460,7 @@ function Reports() {
         }
       }
       if (authToken.role === "EMPLOYEE") {
-        if (json.bugassignedto === authToken._id) {
+        if (json.bugassignedto === authToken.id.toString()) {
           if (filterdates.startdate === "" || filterdates.enddate === "") {
             return {
               _id: json._id.slice(18),
@@ -478,7 +478,7 @@ function Reports() {
                     : json.bugdescription.slice(0, 12) + "..."}
                 </div>
               ),
-              assigneedetails: json.assigneedetails,
+              bugassignedto: json.bugassignedto,
               createdAt: new Date(json.createdAt).toLocaleString(
                 config.DATE_REGION,
                 config["DATE_FORMAT_OBJECT"]
@@ -512,7 +512,7 @@ function Reports() {
                       : json.bugdescription.slice(0, 12) + "..."}
                   </div>
                 ),
-                assigneedetails: json.assigneedetails,
+                bugassignedto: json.bugassignedto,
                 createdAt: new Date(json.createdAt).toLocaleString(
                   config.DATE_REGION,
                   config["DATE_FORMAT_OBJECT"]

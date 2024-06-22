@@ -82,35 +82,28 @@ function Defects() {
     fetchb();
 
     if (authToken.role === "PROJECTMANAGER") {
-      let projectstring = authToken.project;
-      dispatch({ type: "SETSPINNER", data: { display: false } });
-      axios
-        .get(`${config.BE_SERVER_URL}users/projectemployees/${projectstring}`)
-        .then((res) => {
-          setFormInputs((val) => ({
-            ...val,
-            bugassignedto: "",
-            bugproject: authToken.project,
-          }));
-          setProjectFilteredUsers(res.data.employees);
-          dispatch({ type: "SETSPINNER", data: { display: false } });
-          if (!res.data.success) {
-            toast.warning(res.data.message, {
-              position: toast.POSITION.BOTTOM_LEFT,
-              autoClose: 3000,
-            });
-          }
-        });
-      // let resPMUsers = json_users.filter(
-      //   (json_user) => json_user.project === projectstring && projectstring
-      // );
-      // setProjectFilteredUsers(resPMUsers);
+      let projectstring = authToken.project.toString();
+      let resPMUsers = json_users.filter(
+        (json_user) => json_user.project === projectstring && projectstring
+      );
+      setProjectFilteredUsers(resPMUsers);
       setFormInputs((values) => ({
         ...values,
         bugproject: authToken.project.toString(),
       }));
     }
   }, []);
+
+  const findAssignee = (id) => {
+    let assignee = json_users.filter((json) => json.id.toString() === id);
+
+    assignee = assignee[0];
+    if (assignee) {
+      return assignee.username;
+    } else {
+      return "UnAssigned";
+    }
+  };
 
   const editBug = (bugid) => {
     setFormInputs({});
@@ -169,21 +162,7 @@ function Defects() {
           });
         }
       });
-    } else {
-      dispatch({ type: "SETSPINNER", data: { display: true } });
-      axios.get(`${config.BE_SERVER_URL}bugs/${bugid}`).then((response) => {
-        dispatch({ type: "SETSPINNER", data: { display: false } });
-        if (response.data.success) {
-          setFormInputs(response.data.record);
-          setShow(true);
-        } else {
-          toast.warning(response.data.message, {
-            position: toast.POSITION.BOTTOM_LEFT,
-            autoClose: 3000,
-          });
-        }
-      });
-    }
+    } else setShow(true);
 
     // setEditModal(true);
     // let result = json_users.filter(
@@ -195,7 +174,7 @@ function Defects() {
   const handleEdit = () => {
     if (validate()) {
       let data = { ...forminputs };
-      dispatch({ type: "SETSPINNER", data: { display: true } });
+
       axios
         .put(`${config.BE_SERVER_URL}bugs/${forminputs._id}`, data)
         .then(function (response) {
@@ -214,27 +193,11 @@ function Defects() {
             }
             setJsonBugs(bugs);
             setShow(false);
-            dispatch({ type: "SETSPINNER", data: { display: false } });
-            toast.success(response.data.message, {
-              position: toast.POSITION.BOTTOM_LEFT,
-              autoClose: 3000,
-            });
           } else {
-            setShow(false);
-            dispatch({ type: "SETSPINNER", data: { display: false } });
-            toast.warning(response.data.message, {
-              position: toast.POSITION.BOTTOM_LEFT,
-              autoClose: 3000,
-            });
           }
         })
         .catch(function (error) {
-          setShow(false);
-          dispatch({ type: "SETSPINNER", data: { display: false } });
-          toast.warning("unable to update to database", {
-            position: toast.POSITION.BOTTOM_LEFT,
-            autoClose: 3000,
-          });
+          console.log(error);
         });
     }
   };
@@ -313,12 +276,8 @@ function Defects() {
   };
   const handleSubmit = (event) => {
     event.preventDefault();
-
     if (validate()) {
       let data = { ...forminputs };
-      if (authToken.role === "PROJECTMANAGER") {
-        data = { ...forminputs, bugproject: authToken.project };
-      }
       dispatch({ type: "SETSPINNER", data: { display: true } });
       axios
         .post(`${config.BE_SERVER_URL}bugs`, data)
@@ -633,31 +592,22 @@ function Defects() {
                 <FormGroup controlId="formassigned">
                   <FormLabel>
                     <b>
-                      Assign To <span className="text-danger">*</span>
+                      Assigned To <span className="text-danger">*</span>
                     </b>
                   </FormLabel>
-                  {spinner.display ? (
-                    <>
-                      <br />
-                      <Spinner animation="border" role="status" size="sm">
-                        <span className="visually-hidden">Loading...</span>
-                      </Spinner>
-                    </>
-                  ) : (
-                    <FormSelect
-                      onBlur={validateAssignedTo}
-                      value={forminputs.bugassignedto}
-                      onChange={handleChange}
-                      name="bugassignedto"
-                    >
-                      <option value="">--Select--</option>
-                      {projectfilteredusers.map((filteredusers) => (
-                        <option value={filteredusers._id}>
-                          {filteredusers.username}
-                        </option>
-                      ))}
-                    </FormSelect>
-                  )}
+                  <FormSelect
+                    onBlur={validateAssignedTo}
+                    value={forminputs.bugassignedto}
+                    onChange={handleChange}
+                    name="bugassignedto"
+                  >
+                    <option value="">--Select--</option>
+                    {projectfilteredusers.map((filteredusers) => (
+                      <option value={filteredusers._id}>
+                        {filteredusers.username}
+                      </option>
+                    ))}
+                  </FormSelect>
                   <div className="text-danger">{errors.bugassignedto}</div>
                 </FormGroup>
                 <br />
@@ -685,62 +635,23 @@ function Defects() {
               <Modal.Footer>
                 <FormGroup>
                   {!editmodal && (
-                    <>
-                      {spinner.display ? (
-                        <Button
-                          style={{ background: "slateblue" }}
-                          variant="primary"
-                          disabled
-                        >
-                          <Spinner
-                            as="span"
-                            animation="border"
-                            size="sm"
-                            role="status"
-                            aria-hidden="true"
-                          />
-                          <span className="visually-hidden">Loading...</span>
-                        </Button>
-                      ) : (
-                        <Button
-                          style={{ backgroundColor: "slateblue" }}
-                          type="submit"
-                        >
-                          Add
-                        </Button>
-                      )}
-                    </>
+                    <Button
+                      style={{ backgroundColor: "slateblue" }}
+                      type="submit"
+                    >
+                      Add
+                    </Button>
                   )}
                   {editmodal && (
-                    <>
-                      {spinner.display ? (
-                        <Button
-                          style={{ background: "slateblue" }}
-                          variant="primary"
-                          disabled
-                        >
-                          <Spinner
-                            as="span"
-                            animation="border"
-                            size="sm"
-                            role="status"
-                            aria-hidden="true"
-                          />
-                          <span className="visually-hidden">Loading...</span>
-                        </Button>
-                      ) : (
-                        <Button
-                          style={{ backgroundColor: "slateblue" }}
-                          onClick={handleEdit}
-                        >
-                          Edit
-                        </Button>
-                      )}
-                    </>
+                    <Button
+                      style={{ backgroundColor: "slateblue" }}
+                      onClick={handleEdit}
+                    >
+                      Edit
+                    </Button>
                   )}
 
                   <Button
-                    disabled={spinner.display}
                     style={{ marginLeft: "10px", marginRight: "10px" }}
                     variant="danger"
                     type="reset"
@@ -839,10 +750,10 @@ function Defects() {
                                 </Col>
                               </Row>
 
-                              <div className="form-group d-flex justify-content-between align-items-center">
-                                <div>
+                              <Row>
+                                <Col xs={9}>
                                   <Row>
-                                    <Col xs={6}>
+                                    <Col xs={2}>
                                       {jsonbug.bugseverity === "HIGH" && (
                                         <b
                                           title="High Severity"
@@ -878,7 +789,7 @@ function Defects() {
                                       )}
                                     </Col>
 
-                                    <Col xs={6}>
+                                    <Col xs={2}>
                                       {jsonbug.bugtype === "BUG" && (
                                         <b
                                           title="BUG"
@@ -914,16 +825,16 @@ function Defects() {
                                       )}
                                     </Col>
                                   </Row>
-                                </div>
-                                <div>
+                                </Col>
+                                <Col xs={3}>
                                   <p
                                     style={{ margin: "0px" }}
                                     className="text-muted"
                                   >
-                                    {jsonbug.projectdetails}
+                                    DEF-{jsonbug.id}
                                   </p>
-                                </div>
-                              </div>
+                                </Col>
+                              </Row>
                             </Card.Body>
                           </Card>
                         </>
@@ -1020,10 +931,10 @@ function Defects() {
                                 </Col>
                               </Row>
 
-                              <div className="form-group d-flex justify-content-between align-items-center">
-                                <div>
+                              <Row>
+                                <Col xs={9}>
                                   <Row>
-                                    <Col xs={6}>
+                                    <Col xs={2}>
                                       {jsonbug.bugseverity === "HIGH" && (
                                         <b
                                           title="High Severity"
@@ -1059,7 +970,7 @@ function Defects() {
                                       )}
                                     </Col>
 
-                                    <Col xs={6}>
+                                    <Col xs={2}>
                                       {jsonbug.bugtype === "BUG" && (
                                         <b
                                           title="BUG"
@@ -1095,16 +1006,16 @@ function Defects() {
                                       )}
                                     </Col>
                                   </Row>
-                                </div>
-                                <div>
+                                </Col>
+                                <Col xs={3}>
                                   <p
                                     style={{ margin: "0px" }}
                                     className="text-muted"
                                   >
-                                    {jsonbug.projectdetails}
+                                    DEF-{jsonbug.id}
                                   </p>
-                                </div>
-                              </div>
+                                </Col>
+                              </Row>
                             </Card.Body>
                           </Card>
                         </>
@@ -1198,10 +1109,10 @@ function Defects() {
                                 </Col>
                               </Row>
 
-                              <div className="form-group d-flex justify-content-between align-items-center">
-                                <div>
+                              <Row>
+                                <Col xs={9}>
                                   <Row>
-                                    <Col xs={6}>
+                                    <Col xs={2}>
                                       {jsonbug.bugseverity === "HIGH" && (
                                         <b
                                           title="High Severity"
@@ -1237,7 +1148,7 @@ function Defects() {
                                       )}
                                     </Col>
 
-                                    <Col xs={6}>
+                                    <Col xs={2}>
                                       {jsonbug.bugtype === "BUG" && (
                                         <b
                                           title="BUG"
@@ -1273,16 +1184,16 @@ function Defects() {
                                       )}
                                     </Col>
                                   </Row>
-                                </div>
-                                <div>
+                                </Col>
+                                <Col xs={3}>
                                   <p
                                     style={{ margin: "0px" }}
                                     className="text-muted"
                                   >
-                                    {jsonbug.projectdetails}
+                                    DEF-{jsonbug.id}
                                   </p>
-                                </div>
-                              </div>
+                                </Col>
+                              </Row>
                             </Card.Body>
                           </Card>
                         </>
@@ -1384,10 +1295,10 @@ function Defects() {
                                 </Col>
                               </Row>
 
-                              <div className="form-group d-flex justify-content-between align-items-center">
-                                <div>
+                              <Row>
+                                <Col xs={9}>
                                   <Row>
-                                    <Col xs={6}>
+                                    <Col xs={2}>
                                       {jsonbug.bugseverity === "HIGH" && (
                                         <b
                                           title="High Severity"
@@ -1423,7 +1334,7 @@ function Defects() {
                                       )}
                                     </Col>
 
-                                    <Col xs={6}>
+                                    <Col xs={2}>
                                       {jsonbug.bugtype === "BUG" && (
                                         <b
                                           title="BUG"
@@ -1459,16 +1370,16 @@ function Defects() {
                                       )}
                                     </Col>
                                   </Row>
-                                </div>
-                                <div>
+                                </Col>
+                                <Col xs={3}>
                                   <p
                                     style={{ margin: "0px" }}
                                     className="text-muted"
                                   >
-                                    {jsonbug.projectdetails}
+                                    DEF-{jsonbug.id}
                                   </p>
-                                </div>
-                              </div>
+                                </Col>
+                              </Row>
                             </Card.Body>
                           </Card>
                         </>
@@ -1565,10 +1476,10 @@ function Defects() {
                                 </Col>
                               </Row>
 
-                              <div className="form-group d-flex justify-content-between align-items-center">
-                                <div>
+                              <Row>
+                                <Col xs={9}>
                                   <Row>
-                                    <Col xs={6}>
+                                    <Col xs={2}>
                                       {jsonbug.bugseverity === "HIGH" && (
                                         <b
                                           title="High Severity"
@@ -1604,7 +1515,7 @@ function Defects() {
                                       )}
                                     </Col>
 
-                                    <Col xs={6}>
+                                    <Col xs={2}>
                                       {jsonbug.bugtype === "BUG" && (
                                         <b
                                           title="BUG"
@@ -1640,16 +1551,16 @@ function Defects() {
                                       )}
                                     </Col>
                                   </Row>
-                                </div>
-                                <div>
+                                </Col>
+                                <Col xs={3}>
                                   <p
                                     style={{ margin: "0px" }}
                                     className="text-muted"
                                   >
-                                    {jsonbug.projectdetails}
+                                    DEF-{jsonbug.id}
                                   </p>
-                                </div>
-                              </div>
+                                </Col>
+                              </Row>
                             </Card.Body>
                           </Card>
                         </>
@@ -1746,10 +1657,10 @@ function Defects() {
                                 </Col>
                               </Row>
 
-                              <div className="form-group d-flex justify-content-between align-items-center">
-                                <div>
+                              <Row>
+                                <Col xs={9}>
                                   <Row>
-                                    <Col xs={6}>
+                                    <Col xs={2}>
                                       {jsonbug.bugseverity === "HIGH" && (
                                         <b
                                           title="High Severity"
@@ -1785,7 +1696,7 @@ function Defects() {
                                       )}
                                     </Col>
 
-                                    <Col xs={6}>
+                                    <Col xs={2}>
                                       {jsonbug.bugtype === "BUG" && (
                                         <b
                                           title="BUG"
@@ -1821,16 +1732,16 @@ function Defects() {
                                       )}
                                     </Col>
                                   </Row>
-                                </div>
-                                <div>
+                                </Col>
+                                <Col xs={3}>
                                   <p
                                     style={{ margin: "0px" }}
                                     className="text-muted"
                                   >
-                                    {jsonbug.projectdetails}
+                                    DEF-{jsonbug.id}
                                   </p>
-                                </div>
-                              </div>
+                                </Col>
+                              </Row>
                             </Card.Body>
                           </Card>
                         </>
