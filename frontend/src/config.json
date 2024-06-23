@@ -12,6 +12,6 @@
   "DEFECTS_LINK_NAME": "Defects",
   "REPORTS_LINK_NAME": "Reports",
 
-  "DATE_FORMAT_OBJECT": { "timeStyle": "short", "dateStyle": "medium" },
-  "DATE_REGION": "en-IN"
+  "DATE_FORMAT_OBJECT": { "day": "2-digit", "month": "short", "year": "numeric", "hour": "2-digit", "minute": "2-digit", "hour12": true },
+  "DATE_REGION": "en-US"
 }
