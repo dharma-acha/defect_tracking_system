@@ -20,10 +20,16 @@ function TopNav() {
             {authToken.role === "ADMIN" &&
           
               <li ><NavLink style={({ isActive }) => (isActive ? { textDecoration: "underline", textUnderlineOffset: "6px" } : { textDecoration: "none" })} to="/users">Users</NavLink></li> }
+
+
               {authToken.role === "ADMIN" &&
               <li><NavLink style={({ isActive }) => (isActive ? { textDecoration: "underline", textUnderlineOffset: "6px" } : { textDecoration: "none" })} to="/projects">Projects</NavLink></li>}
+
+
               {authToken.role !== "EMPLOYEE" &&
               <li><NavLink style={({ isActive }) => (isActive ? { textDecoration: "underline", textUnderlineOffset: "6px" } : { textDecoration: "none" })} to="/defects">Defects</NavLink></li>}
+
+              
               <li><NavLink style={({ isActive }) => (isActive ? { textDecoration: "underline", textUnderlineOffset: "6px" } : { textDecoration: "none" })} to="/reports">Reports</NavLink></li>
               </ul>
             </Nav>
