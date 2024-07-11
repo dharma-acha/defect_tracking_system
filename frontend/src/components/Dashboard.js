@@ -253,7 +253,7 @@ function Dashboard() {
                                             <Card.Title>My Project</Card.Title>
                                             <Card.Text>
                                                 <h5>{authToken.project.toString() ? (projects.map((project) => {
-                                                    if (project.id === authToken.project) {
+                                                    if (project._id === authToken.project) {
                                                         return (<small>'{project.projecttitle}'</small>)
                                                     }
 
