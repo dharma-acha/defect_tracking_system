@@ -17,7 +17,7 @@ app.use(
 const db = require("./app/models");
 db.mongoose
   .connect(db.url, {
-    useNewUrlParser: true,
+    useNewUrlParser: true,           // Connects to the MongoDB database using Mongoose.
     useUnifiedTopology: true,
   })
   .then(() => {
