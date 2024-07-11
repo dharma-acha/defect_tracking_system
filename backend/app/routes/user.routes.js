@@ -3,13 +3,13 @@ module.exports = (app) => {
 
   var router = require("express").Router();
 
-  // Create a new Book
+  // Create a new user
   router.post("/", users.create);
 
   //assign Project Manger to project
   router.post("/assignPM", users.assignPM);
 
-  // Retrieve all Books
+  // Retrieve all users
   router.get("/", users.findAll);
 
   //Retrive assigned Project Managers
@@ -20,13 +20,13 @@ module.exports = (app) => {
 
   router.get("/projectemployees/:id", users.findProjectEmployees);
 
-  // Retrieve a single Book with id
+  // Retrieve a single user with id
   router.get("/:id", users.findOne);
 
-  // Update a Book with id
+  // Update a user with id
   router.put("/:id", users.update);
 
-  // Delete a Book with id
+  // Delete a user with id
   router.delete("/:id", users.delete);
 
   app.use("/api/users", router);
