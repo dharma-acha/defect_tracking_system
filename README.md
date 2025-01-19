@@ -39,7 +39,7 @@ Defect Tracking System (DTS) gives the facility to define the tasks and allow th
 5. Open terminal and run 'mongod' to connect to the server.
 6. Create a config file in backend: 'mongodb://localhost:27017/DefectTrackingSystem'
 7. To run the frontend file run command 'npm start'
-8. Run the backend file with 'node index.js'
+8. Run the backend file with 'node server.js'
 
 ### License
 
