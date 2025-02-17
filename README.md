@@ -1,8 +1,8 @@
-﻿## Defect Tracking System
+﻿## CodeShield
 https://github.com/dharma-acha/defect_tracking_system/assets/100557655/52dc9adb-0af5-4e85-9adc-7888e37cf812
 ### Introduction
 
-Defect Tracking System (DTS) gives the facility to define the tasks and allow the managers to track the Defects and time spent by each employee for that particular task. This tool can help managers for Defects (Bugs) estimation per project and also helps employees to document their Defects and analyze the quality of their output.
+CodeShield gives the facility to define the tasks and allow the managers to track the Defects and time spent by each employee for that particular task. This tool can help managers for Defects (Bugs) estimation per project and also helps employees to document their Defects and analyze the quality of their output.
 
 ### Features
 
@@ -18,7 +18,7 @@ Defect Tracking System (DTS) gives the facility to define the tasks and allow th
 
 1. HTML 5/CSS 3
 2. JavaScript ES6
-3. React JS
+3. Angular JS
 4. Express JS
 5. Mongo DB
 6. Mongoose
